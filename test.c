@@ -6,6 +6,7 @@
 #include<fcntl.h>      /*檔控制定義*/
 #include<termios.h>    /*PPSIX 終端控制定義*/
 #include<errno.h>  
+#include<string.h>
 
 #define BAUD_RATE B115200
 
@@ -26,7 +27,8 @@ int readMessage(int file);
 
 int main()
 {
-	read_Serial_Port("/dev/ttyACM0");
+	printf("xxxxxxxxxxx_%d_xxxxxxxxxxxxxxxx", (int)('\0'));
+	read_Serial_Port("/dev/ttyACM2");
 	return 0;
 }
 
@@ -41,7 +43,7 @@ void read_Serial_Port(const char* DEVICE_PORT)
 
     if(file == -1)
 	{
-		perror("Unable to open the serial port\n");
+		perror("Open");
 	}
     printf("Serial port open successful\n");
 
@@ -71,11 +73,12 @@ int readMessage(int file)
 {
     if (file != -1)
     {
-        char data[100] = {'\0'};
+        char* data = malloc(sizeof(char)*100);
+		bzero(data, sizeof(char)*100);
 		int readLen = 0;
         while (1)
         {
-        	readLen = read(file, data, 1);
+        	readLen = read(file, data, 100);
 			if(readLen == 0)
 				continue;
             else if (readLen == -1)
@@ -89,6 +92,9 @@ int readMessage(int file)
             }
 			printf("readLen = %d\n", readLen);
 			printf("data = %s\n", data);
+			for(int i=0; i<readLen; i++)
+				printf("%d_", (int)data[i]);
+			bzero(data, sizeof(char)*100);
         }
     }
 }
