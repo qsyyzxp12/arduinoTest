@@ -92,7 +92,8 @@ int readMessage(int file)
             }
 			printf("readLen = %d\n", readLen);
 			printf("data = %s\n", data);
-			for(int i=0; i<readLen; i++)
+			int i=0;
+			for(i=0; i<readLen; i++)
 				printf("%d_", (int)data[i]);
 			bzero(data, sizeof(char)*100);
         }
