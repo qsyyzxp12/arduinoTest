@@ -1,23 +1,42 @@
 
 void setup() 
 {
-      pinMode(11, OUTPUT);
       Serial.begin(9600);
 }
 int handShaking = 0;
 
 void loop() 
-{
-      int recvLen = Serial.available();
-      if( recvLen && !handShaking)
+{     
+      if(handShaking)
       {
-            String recvMes = serialRecv(recvLen);
-            Serial.println(recvMes);
-            handShaking = 1;
-            digitalWrite(11, HIGH);
-   //         delay(1000);
+            int sensorVal0 = analogRead(0);
+            int sensorVal1 = analogRead(1);
+            
+            String mes = "(" + String(sensorVal0) + ", " + String(0) + ")";
+            Serial.println(mes);
       }
       delay(100);        // delay in between reads for stability
+}
+
+void serialEvent()
+{
+      int recvLen = Serial.available();
+      if( recvLen)
+      {
+            String recvMes = serialRecv(recvLen);
+            if(recvMes == "Arduino?")
+            {
+                  Serial.println("YES");
+                  handShaking = 1;
+            }
+            else if(recvMes == "End")
+            {
+                  Serial.println("OK");
+                  handShaking = 0;
+            }
+            else
+                  Serial.println("Error");
+      }
 }
 
 String serialRecv(int length)
