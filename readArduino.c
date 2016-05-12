@@ -3,6 +3,7 @@
 #include<string.h>
 #include<wiringSerial.h>
 #include<errno.h>
+#include<fcntl.h>
 
 #define MAX_MES_SIZE 32
 
@@ -19,16 +20,16 @@ int main()
 	int ret;
 	while(!(ret = serialDataAvail(fd)))
 	{
-		printf("ret = %d\n", ret);
 		serialPutchar(fd, 'X');
+		sleep(1);
 	}
 	printf("ret = %d\n", ret);
 	printf("Serial Data Available!\n");
-/*	while(1)
-	{
+
+	while(1)
 		printf("%s", readSerial(fd));
-	}
-*/	return 0;
+	
+	return 0;
 }
 
 char* readSerial(int fd)
