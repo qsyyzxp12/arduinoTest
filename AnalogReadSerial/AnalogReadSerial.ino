@@ -9,13 +9,15 @@ void loop()
 {     
       if(handShaking)
       {
-            int sensorVal0 = analogRead(0);
-            int sensorVal1 = analogRead(1);
-            
-            String mes = "(" + String(sensorVal0) + ", " + String(0) + ")";
+            String mes = "";
+            for(int i=0; i<5; i++)
+            {
+                  int sensorVal = analogRead(i);
+                  mes += String(sensorVal) + ",";
+            }
             Serial.println(mes);
       }
-      delay(100);        // delay in between reads for stability
+      delay(50);        // delay in between reads for stability
 }
 
 void serialEvent()
@@ -31,11 +33,13 @@ void serialEvent()
             }
             else if(recvMes == "End")
             {
-                  Serial.println("OK");
                   handShaking = 0;
             }
             else
-                  Serial.println("Error");
+            {
+                  String errMes = "Error, Arduino receive unexpected message: " + recvMes;
+                  Serial.println(errMes);
+            }
       }
 }
 
