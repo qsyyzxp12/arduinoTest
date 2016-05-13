@@ -1,5 +1,5 @@
 all:
-	./compile resistanceReader.c
+	gcc -lwiringPi -lpthread resistanceReader.c -o resistanceReader 
 	gcc resistanceReaderController.c -o resistanceReaderController
 	sudo rm /bin/resistanceReaderController
 	sudo cp resistanceReaderController /bin/

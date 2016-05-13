@@ -5,6 +5,8 @@
 #include<errno.h>
 #include<fcntl.h>
 #include<signal.h>
+#include<pthread.h>
+#include"resistanceReader.h"
 
 #define MAX_MES_SIZE 	32
 #define BAUD_RATE		9600
@@ -12,11 +14,7 @@
 
 char* errMes;
 int fd;
-
-char* readSerial(int fd);
-int handShake(int fd);
-void endSerial(int fd);
-void signalHandler();
+int resistanceVals[5];
 
 int main()
 {
@@ -28,12 +26,28 @@ int main()
 	errMes = malloc(sizeof(char)*64);
 	bzero(errMes, sizeof(char)*64);
 
+	pthread_t tid;
+	int ret = pthread_create(&tid, NULL, (void*)receivingDataFromSerialPort, NULL);
+	if(ret)
+	{
+		perror("pthread_create:");
+		return 1;
+	}
+
+//	dynamicCalculate();
+
+	pthread_join(tid, NULL);
+	return 0;
+}
+
+void receivingDataFromSerialPort()
+{
 	//init serial port file descriptor
 	fd = serialOpen(SERIAL_PORT, BAUD_RATE);
 	if(fd == -1)
 	{
 		perror("serialOpen");
-		return 1;
+		return;
 	}
 	serialFlush(fd);
 
@@ -42,7 +56,7 @@ int main()
 	{
 		printf("HandShake Error\n");
 		endSerial(fd);
-		return 1;
+		return;
 	}
 	printf("HandShake success\n");
 	printf("Begin receive resistance value\n");
@@ -51,11 +65,29 @@ int main()
 		if(!serialDataAvail(fd))
 			continue;
 		char* recvMes = readSerial(fd);
-		printf("%s", recvMes);
+		recvMesHandle(recvMes);
 	}
-
 	endSerial(fd);
-	return 0;
+	return;
+}
+
+void recvMesHandle(char* recvMes)
+{
+	int top = 0;
+	int vals[5] = {0};
+	char* valStr = strtok(recvMes, ",");
+	while(valStr)
+	{
+		resistanceVals[top++] = atoi(valStr);
+		valStr = strtok(NULL, ",");
+	}
+	free(recvMes);	
+
+	for(top = 0; top < 5; top++)
+	{
+		printf("%d,", vals[top]);
+	}
+	printf("\n");
 }
 
 void signalHandler()
