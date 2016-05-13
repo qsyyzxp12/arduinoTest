@@ -45,7 +45,6 @@ void killDaemond()
 	}
 
 	int pid = atoi(pidStr);
-	printf("pid = %d\n", pid);
 	kill(pid, SIGTERM);
 }
 
@@ -53,16 +52,13 @@ void callArduinoConnectDaemond()
 {
 	int pid = fork();
 	if(pid != 0)
-	{
-		printf("grandfather terminated\n");
 		exit(0);
-	}
+	
 	setsid();
 	signal(SIGHUP, SIG_IGN);
 	pid = fork();
 	if(pid != 0)
 	{
-		printf("\tpid of child process = %d\n", pid);
 		int fd = open("/home/pi/arduinoTest/PID", O_RDWR | O_CREAT | O_TRUNC, 0777);
 		if(fd < 0)
 		{
@@ -71,15 +67,12 @@ void callArduinoConnectDaemond()
 		}
 		char str[16] = {'\0'};
 		sprintf(str, "%d", pid);
-		printf("\tstr = %s\n", str);
 		int ret = write(fd, str, strlen(str));
 		if(ret < 0)
 			perror("write");
 		close(fd);
-		printf("parent process terminated\n");
 		exit(0);
 	}
-	printf("\t\tChild process\n");
 	chdir("/");
 	umask(0);
 	
