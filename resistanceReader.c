@@ -29,6 +29,7 @@ int main()
 		perror("serialOpen");
 		return 1;
 	}
+	serialFlush(fd);
 
 	int ret = handShake(fd);
 	if(!ret)
@@ -38,8 +39,14 @@ int main()
 		return 1;
 	}
 	printf("HandShake success\n");
+	printf("Begin receive resistance value\n");
 	while(1)
-		printf("%s", readSerial(fd));
+	{
+		if(!serialDataAvail(fd))
+			continue;
+		char* recvMes = readSerial(fd);
+		printf("%s", recvMes);
+	}
 
 	endSerial(fd);
 	return 0;
@@ -47,7 +54,6 @@ int main()
 
 void signalHandler()
 {
-	printf("signal catched\n");
 	endSerial(fd);
 	exit(1);
 }
@@ -65,14 +71,17 @@ int handShake(int fd)
 	int errCount = 0;
 	while(errCount < 5)
 	{
-		int ret;
-		while(!(ret = serialDataAvail(fd)))
+		while(1)
 		{
 			int i=0;
 			for(i=0; i<strlen(reqMes); i++)
 				serialPutchar(fd, reqMes[i]);
-			sleep(1);
+			if(!serialDataAvail(fd))
+				sleep(1);
+			else
+				break;
 		}
+
 		printf("Serial Data Available!\n");
 		char* recvMes = readSerial(fd);
 		if(!strcmp(recvMes, "YES\r\n"))
@@ -87,6 +96,7 @@ int handShake(int fd)
 		{
 			printf("Receive upexpected message - %s", recvMes);
 			errCount++;
+			sleep(5);
 			continue;
 		}
 	}
@@ -98,6 +108,7 @@ char* readSerial(int fd)
 	char* mes = malloc(sizeof(char)*MAX_MES_SIZE);
 	bzero(mes, sizeof(char)*MAX_MES_SIZE);
 	int top = 0;
+
 	while(1)
 	{
 		char c = (char)serialGetchar(fd);
