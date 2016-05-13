@@ -6,7 +6,9 @@
 #include<fcntl.h>
 #include<signal.h>
 
-#define MAX_MES_SIZE 32
+#define MAX_MES_SIZE 	32
+#define BAUD_RATE		9600
+#define SERIAL_PORT		"/dev/ttyACM0"
 
 char* errMes;
 int fd;
@@ -18,12 +20,16 @@ void signalHandler();
 
 int main()
 {
+	//register signal callback
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
+
+	//init errMes
 	errMes = malloc(sizeof(char)*64);
 	bzero(errMes, sizeof(char)*64);
 
-	fd = serialOpen("/dev/ttyACM0", 9600);
+	//init serial port file descriptor
+	fd = serialOpen(SERIAL_PORT, BAUD_RATE);
 	if(fd == -1)
 	{
 		perror("serialOpen");
