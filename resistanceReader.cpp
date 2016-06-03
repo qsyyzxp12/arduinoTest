@@ -5,7 +5,7 @@
 #include<errno.h>
 #include<fcntl.h>
 #include<csignal>
-//#include<pthread.h>
+#include<pthread.h>
 #include"resistanceReader.h"
 #include"Linux_UART.h"
 
@@ -24,17 +24,17 @@ int main()
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
 
-/*	pthread_t tid;
+	pthread_t tid;
 	int ret = pthread_create(&tid, NULL, receivingDataFromSerialPort, NULL);
 	if(ret)
 	{
 		perror("pthread_create:");
 		return 1;
 	}
-*/
+
 	dynamicCalculate();
 
-//	pthread_join(tid, NULL);
+	pthread_join(tid, NULL);
 	return 0;
 }
 
