@@ -4,15 +4,17 @@
 #include<wiringSerial.h>
 #include<errno.h>
 #include<fcntl.h>
-#include<signal.h>
-#include<pthread.h>
+#include<csignal>
+//#include<pthread.h>
 #include"resistanceReader.h"
+#include"Linux_UART.h"
 
 #define MAX_MES_SIZE 	32
-#define BAUD_RATE		9600
-#define SERIAL_PORT		"/dev/ttyACM0"
+#define INPUT_PORT		"/dev/ttyACM0"
+#define INPUT_BAUD_RATE	9600
+#define OUTPUT_PORT		"/dev/ttyUSB0"
+#define OUTPU_BAUD_RATE B115200	
 
-char* errMes;
 int fd;
 int resistanceVals[5];
 
@@ -22,32 +24,34 @@ int main()
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
 
-	//init errMes
-	errMes = malloc(sizeof(char)*64);
-	bzero(errMes, sizeof(char)*64);
-
-	pthread_t tid;
-	int ret = pthread_create(&tid, NULL, (void*)receivingDataFromSerialPort, NULL);
+/*	pthread_t tid;
+	int ret = pthread_create(&tid, NULL, receivingDataFromSerialPort, NULL);
 	if(ret)
 	{
 		perror("pthread_create:");
 		return 1;
 	}
+*/
+	dynamicCalculate();
 
-//	dynamicCalculate();
-
-	pthread_join(tid, NULL);
+//	pthread_join(tid, NULL);
 	return 0;
 }
 
-void receivingDataFromSerialPort()
+void dynamicCalculate()
+{
+//	if(!Bluetooth.Setup_UART(OUTPUT_PORT, OUTPUT_BAUD_RATE, ~PARENB, ~CSTOPB))	
+//		return 0;
+}
+
+void* receivingDataFromSerialPort(void*)
 {
 	//init serial port file descriptor
-	fd = serialOpen(SERIAL_PORT, BAUD_RATE);
+	fd = serialOpen(INPUT_PORT, INPUT_BAUD_RATE);
 	if(fd == -1)
 	{
 		perror("serialOpen");
-		return;
+		return NULL;
 	}
 	serialFlush(fd);
 
@@ -56,7 +60,7 @@ void receivingDataFromSerialPort()
 	{
 		printf("HandShake Error\n");
 		endSerial(fd);
-		return;
+		return NULL;
 	}
 	printf("HandShake success\n");
 	printf("Begin receive resistance value\n");
@@ -68,7 +72,7 @@ void receivingDataFromSerialPort()
 		recvMesHandle(recvMes);
 	}
 	endSerial(fd);
-	return;
+	return NULL;
 }
 
 void recvMesHandle(char* recvMes)
@@ -90,7 +94,7 @@ void recvMesHandle(char* recvMes)
 	printf("\n");
 }
 
-void signalHandler()
+void signalHandler(int input)
 {
 	endSerial(fd);
 	exit(1);
@@ -143,7 +147,7 @@ int handShake(int fd)
 
 char* readSerial(int fd)
 {
-	char* mes = malloc(sizeof(char)*MAX_MES_SIZE);
+	char* mes = (char*)malloc(sizeof(char)*MAX_MES_SIZE);
 	bzero(mes, sizeof(char)*MAX_MES_SIZE);
 	int top = 0;
 
