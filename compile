@@ -1,1 +1,0 @@
-gcc -lwiringPi $1 -o resistanceReader 

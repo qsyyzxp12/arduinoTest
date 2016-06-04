@@ -13,10 +13,11 @@
 #define INPUT_PORT		"/dev/ttyACM0"
 #define INPUT_BAUD_RATE	9600
 #define OUTPUT_PORT		"/dev/ttyUSB0"
-#define OUTPU_BAUD_RATE B115200	
+#define OUTPUT_BAUD_RATE B115200	
 
 int fd;
 int resistanceVals[5];
+UART Bluetooth;
 
 int main()
 {
@@ -40,8 +41,18 @@ int main()
 
 void dynamicCalculate()
 {
-//	if(!Bluetooth.Setup_UART(OUTPUT_PORT, OUTPUT_BAUD_RATE, ~PARENB, ~CSTOPB))	
-//		return 0;
+	if(!Bluetooth.Setup_UART(OUTPUT_PORT, OUTPUT_BAUD_RATE, ~PARENB, CS8, ~CSTOPB))	
+	{
+		printf("Bluetooth setup Error\n");
+		return;
+	}
+	int resistanceValsNow[5] = {0};
+	memcpy(resistanceValsNow, resistanceVals, sizeof(int)*5);
+	for(int i=0; i<5; i++)
+		printf("%d\t", resistanceValsNow[i]);
+	printf("\n");
+//	Bluetooth.Write(resistanceValsNow, sizeof(int)*5);
+	
 }
 
 void* receivingDataFromSerialPort(void*)
@@ -50,7 +61,7 @@ void* receivingDataFromSerialPort(void*)
 	fd = serialOpen(INPUT_PORT, INPUT_BAUD_RATE);
 	if(fd == -1)
 	{
-		perror("serialOpen");
+		perror("Input Serial Port Open");
 		return NULL;
 	}
 	serialFlush(fd);

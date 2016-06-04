@@ -81,5 +81,4 @@ void callArduinoConnectDaemond()
 	close(2);
 	
 	execl("/home/pi/arduinoTest/resistanceReader", NULL);
-	return NULL;
 }
