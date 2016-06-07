@@ -45,14 +45,27 @@ void killDaemond()
 	}
 
 	int pid = atoi(pidStr);
-	printf("pid = %d\n", pid);
 	int ret = kill(pid, SIGTERM);
 	if(ret == -1)
 		perror("kill");
+	else
+	{
+		int fd = open("/home/pi/arduinoTest/PID", O_TRUNC);
+		close(fd);
+	}
 }
 
 void callArduinoConnectDaemond()
 {
+	int fd = open("/home/pi/arduinoTest/PID", O_RDONLY);
+	int size = lseek(fd, 0, SEEK_END);
+	if(size > 0)
+	{
+		printf("Please stop the pervious process.\nDo \"resistanceReaderController stop\"\n");
+		return;
+	}
+	close(fd);
+
 	int pid = fork();
 	if(pid != 0)
 		exit(0);
@@ -62,7 +75,7 @@ void callArduinoConnectDaemond()
 	pid = fork();
 	if(pid != 0)
 	{
-		int fd = open("/home/pi/arduinoTest/PID", O_RDWR | O_CREAT | O_TRUNC, 0777);
+		fd = open("/home/pi/arduinoTest/PID", O_RDWR | O_CREAT | O_TRUNC, 0777);
 		if(fd < 0)
 		{
 			perror("Open");
