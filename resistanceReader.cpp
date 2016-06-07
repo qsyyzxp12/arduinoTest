@@ -36,6 +36,7 @@ int main()
 	dynamicCalculate();
 
 	pthread_join(tid, NULL);
+	while(1);
 	return 0;
 }
 

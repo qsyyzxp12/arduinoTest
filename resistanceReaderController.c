@@ -45,7 +45,10 @@ void killDaemond()
 	}
 
 	int pid = atoi(pidStr);
-	kill(pid, SIGTERM);
+	printf("pid = %d\n", pid);
+	int ret = kill(pid, SIGTERM);
+	if(ret == -1)
+		perror("kill");
 }
 
 void callArduinoConnectDaemond()
