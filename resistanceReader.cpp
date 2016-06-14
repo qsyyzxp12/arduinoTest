@@ -44,7 +44,6 @@ int main()
 	dynamicCalculate();
 
 	pthread_join(tid, NULL);
-	while(1);
 	return 0;
 }
 
@@ -64,9 +63,13 @@ void dynamicCalculate()
 	
 	while(1)
 	{
+		for(int i=0; i<5; i++)
+			printf("%d,", resistanceVals[i]);
+		printf("\n");
 		My_Arm.Refresh_TFMatrix(My_Arm.RawTheta2Deg(resistanceVals));
 		char* output = My_Arm.Get_TransData();
-		printf("output = %s\n", output);
+//		for(int i=0; i<31; i++)
+//			printf("%c", output[i]);
 		Bluetooth.Write(output, 31);
 	}
 }
@@ -95,6 +98,7 @@ void* receivingDataFromSerialPort(void*)
 	{
 		if(!serialDataAvail(fd))
 			continue;
+		
 		char* recvMes = readSerial(fd);
 		recvMesHandle(recvMes);
 		data_count++;
@@ -106,7 +110,6 @@ void* receivingDataFromSerialPort(void*)
 void recvMesHandle(char* recvMes)
 {
 	int top = 0;
-	int vals[5] = {0};
 	char* valStr = strtok(recvMes, ",");
 	while(valStr)
 	{
@@ -114,12 +117,13 @@ void recvMesHandle(char* recvMes)
 		valStr = strtok(NULL, ",");
 	}
 	free(recvMes);	
-
+/*
 	for(top = 0; top < 5; top++)
 	{
-		printf("%d,", vals[top]);
+		printf("%d,", resistanceVals[top]);
 	}
 	printf("\n");
+*/
 }
 
 void signalHandler(int input)
