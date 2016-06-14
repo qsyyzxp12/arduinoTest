@@ -16,10 +16,11 @@
 #define OUTPUT_PORT		"/dev/ttyUSB0"
 #define OUTPUT_BAUD_RATE B115200	
 
-int fd;
-int resistanceVals[5];
+int fd = 0;
+int resistanceVals[5] = {0};
 UART Bluetooth;
 Robot_Arm My_Arm(5);
+int data_count = 0;
 
 int main()
 {
@@ -35,6 +36,12 @@ int main()
 		return 1;
 	}
 
+	if(!Bluetooth.Setup_UART(OUTPUT_PORT, OUTPUT_BAUD_RATE, ~PARENB, CS8, ~CSTOPB))	
+	{
+		printf("Bluetooth setup Error\n");
+		return 1;
+	}
+
 	dynamicCalculate();
 
 	pthread_join(tid, NULL);
@@ -44,18 +51,23 @@ int main()
 
 void dynamicCalculate()
 {	
-	if(!Bluetooth.Setup_UART(OUTPUT_PORT, OUTPUT_BAUD_RATE, ~PARENB, CS8, ~CSTOPB))	
-	{
-		printf("Bluetooth setup Error\n");
-		return;
-	}
-	int resistanceValsNow[5] = {0};
-	memcpy(resistanceValsNow, resistanceVals, sizeof(int)*5);
-	for(int i=0; i<5; i++)
-		printf("%d\t", resistanceValsNow[i]);
-	printf("\n");
-//	Bluetooth.Write(resistanceValsNow, sizeof(int)*5);
+	double theta[5] = {0};
+	int size = 5;
+	char output[size];
+	while(!data_count);
 	
+	//TODO: do something to transform resistanceVals to thera
+	My_Arm.Set_Ini_Theta(theta);
+	//TODO:	do something to transform My_Arm.P to string output
+	Bluetooth.Write(output, sizeof(char)*size);
+	
+	while(1)
+	{
+		//TODO: do something to transform resistanceVals to thera
+		My_Arm.Refresh_TFMatrix(theta);
+		//TODO:	do something to transform My_Arm.P to string output
+		Bluetooth.Write(output, sizeof(char)*size);
+	}
 }
 
 void* receivingDataFromSerialPort(void*)
@@ -84,6 +96,7 @@ void* receivingDataFromSerialPort(void*)
 			continue;
 		char* recvMes = readSerial(fd);
 		recvMesHandle(recvMes);
+		data_count++;
 	}
 	endSerial(fd);
 	return NULL;
