@@ -19,7 +19,6 @@
 int fd = 0;
 int resistanceVals[5] = {0};
 UART Bluetooth;
-Robot_Arm My_Arm(5);
 int data_count = 0;
 
 int main()
@@ -51,22 +50,22 @@ int main()
 
 void dynamicCalculate()
 {	
-	double theta[5] = {0};
-	int size = 5;
-	char output[size];
+	Robot_Arm My_Arm;
+	Eigen::Matrix4d T_Base2Global;
+	T_Base2Global << 0, 0, -1, 0,
+					 -1, 0, 0, 0,
+					 0, 1, 0, 0,
+					 0, 0, 0, 1;
+	My_Arm.Set_Base2Global(T_Base2Global);
+
 	while(!data_count);
 	
-	//TODO: do something to transform resistanceVals to thera
-	My_Arm.Set_Ini_Theta(theta);
-	//TODO:	do something to transform My_Arm.P to string output
-	Bluetooth.Write(output, sizeof(char)*size);
+	My_Arm.Set_Ini_Theta(My_Arm.RawTheta2Deg(resistanceVals));
 	
 	while(1)
 	{
-		//TODO: do something to transform resistanceVals to thera
-		My_Arm.Refresh_TFMatrix(theta);
-		//TODO:	do something to transform My_Arm.P to string output
-		Bluetooth.Write(output, sizeof(char)*size);
+		My_Arm.Refresh_TFMatrix(My_Arm.RawTheta2Deg(resistanceVals));
+		Bluetooth.Write(My_Arm.Get_TransData(), 31);
 	}
 }
 

@@ -2,29 +2,23 @@
 
 Robot_Arm::Robot_Arm()
 {
-	Robot_DOF = 0;
+	Robot_DOF = 5;
+
+	for(int i=0; i<5; i++)
+		Theta[i] = 0.0;
+
+	memset(TransData, '\0', sizeof(TransData));
+
+	T_Base2Global = Eigen::Matrix4d::Identity();
 
 	Set_Ini_Theta_Flag = false;
 
-	T_Base2Global = Eigen::Matrix4d::Identity();
+	TransFormation_Matrix.reserve(Robot_DOF+1);
 
 	Ini_P.resize(6); // 6*1
 	P.resize(6);     // 6*1
 }
 
-Robot_Arm::Robot_Arm(int DOF)
-{
-	Robot_DOF = DOF;
-
-	Set_Ini_Theta_Flag = false;
-
-	T_Base2Global = Eigen::Matrix4d::Identity();
-
-	TransFormation_Matrix.reserve(DOF+1);
-
-	Ini_P.resize(6); // 6*1
-	P.resize(6);     // 6*1
-}
 
 Robot_Arm::~Robot_Arm()
 {
@@ -37,7 +31,7 @@ int Robot_Arm::Get_RobotDOF()
 }
 
 
-void Robot_Arm::Set_Base2Globalframe(Eigen::Matrix4d& T)
+void Robot_Arm::Set_Base2Global(Eigen::Matrix4d& T)
 {
 	T_Base2Global = T;
 }
@@ -118,6 +112,53 @@ void Robot_Arm::Refresh_TFMatrix(double *New_theta)
 	T_BaseEnd = T_Base2Global * T_BaseEnd;
 
 	Get_Robot_PosOri(T_BaseEnd, P);
+}
+
+double* Robot_Arm::RawTheta2Deg(int *Raw_Theta)
+{
+	Theta[0] = -90.0 + (90.0 / 350.0) * double(Raw_Theta[0]);
+	Theta[1] = -double(Raw_Theta[1] - 550) * 90.0 / 330.0;
+	Theta[2] = -90.0 / 400.0 * double(Raw_Theta[2]-530) + 180.0;
+	Theta[3] = -90.0 / 385.0 * double(Raw_Theta[3]-495) - 90.0;
+	Theta[4] = -90.0 / 385.0 * double(Raw_Theta[4]-495);
+
+	return Theta;
+}
+
+char* Robot_Arm::Get_TransData()
+{
+	// Position 指傳整數 0000~9999(包含正負) ==> 共5Bytes
+	// Orientation 乘1000倍，小數點捨去(包含正負) ==> 共5Bytes
+
+	Eigen::VectorXd Delta_P = P - Ini_P;
+
+	memset(TransData, '\0', sizeof(TransData));
+	
+	char temp[10] = {'\0'};
+
+	for(int i=0; i<3; i++)
+	{
+		if(Delta_P(i) >= 0)
+			sprintf(temp, "+%04d", int(Delta_P(i)));
+		else
+			sprintf(temp, "-%04d", int( abs(Delta_P(i)) ) );
+
+		strcat(TransData, temp);
+	}
+
+	for(int i=3; i<6; i++)
+	{
+		if(Delta_P(i) >= 0)
+			sprintf(temp, "+%04d", int(Delta_P(i)*1000));
+		else
+			sprintf(temp, "-%04d", int( abs(Delta_P(i)*1000) ) );
+
+		strcat(TransData, temp);
+	}
+
+	TransData[30] = '\n';
+
+	return TransData;
 }
 
 
