@@ -68,9 +68,9 @@ void dynamicCalculate()
 
 		My_Arm.Refresh_TFMatrix(My_Arm.RawTheta2Deg(resistanceVals));
 		char* output = My_Arm.Get_TransData();
-		for(int i=0; i<31; i++)
+/*		for(int i=0; i<31; i++)
 			printf("%c", output[i]);
-		Bluetooth.Write(output, 31);
+*/		Bluetooth.Write(output, 31);
 		usleep(100000);
 	}
 }

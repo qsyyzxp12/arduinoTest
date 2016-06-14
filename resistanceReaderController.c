@@ -91,10 +91,10 @@ void callArduinoConnectDaemond()
 	}
 	chdir("/");
 	umask(0);
-	
+/*	
 	close(0);
 	close(1);
 	close(2);
-	
+*/	
 	execl("/home/pi/arduinoTest/resistanceReader", NULL);
 }
