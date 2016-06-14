@@ -1,5 +1,5 @@
 Bluetooth: Main.o Linux_UART.o
-	g++ -O3 Main.cpp Linux_UART.cpp -lpthread -o Bluetooth
+	g++ Main.cpp Linux_UART.cpp -lpthread -o Bluetooth
 
 Main.o: Main.cpp	
 	g++ Main.cpp -c -lpthread

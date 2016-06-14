@@ -17,7 +17,7 @@
 #define OUTPUT_BAUD_RATE B115200	
 
 int fd = 0;
-int resistanceVals[5] = {0};
+static int resistanceVals[5] = {0};
 UART Bluetooth;
 int data_count = 0;
 
@@ -27,6 +27,12 @@ int main()
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
 
+if(!Bluetooth.Setup_UART(OUTPUT_PORT, OUTPUT_BAUD_RATE, ~PARENB, CS8, ~CSTOPB))	
+	{
+		printf("Bluetooth setup Error\n");
+		return 1;
+	}
+
 	pthread_t tid;
 	int ret = pthread_create(&tid, NULL, receivingDataFromSerialPort, NULL);
 	if(ret)
@@ -34,13 +40,6 @@ int main()
 		perror("pthread_create:");
 		return 1;
 	}
-
-	if(!Bluetooth.Setup_UART(OUTPUT_PORT, OUTPUT_BAUD_RATE, ~PARENB, CS8, ~CSTOPB))	
-	{
-		printf("Bluetooth setup Error\n");
-		return 1;
-	}
-
 	dynamicCalculate();
 
 	pthread_join(tid, NULL);
@@ -63,14 +62,16 @@ void dynamicCalculate()
 	
 	while(1)
 	{
-		for(int i=0; i<5; i++)
-			printf("%d,", resistanceVals[i]);
-		printf("\n");
+//		for(int i=0; i<5; i++)
+//			printf("%d,", resistanceVals[i]);
+//		printf("\n");
+
 		My_Arm.Refresh_TFMatrix(My_Arm.RawTheta2Deg(resistanceVals));
 		char* output = My_Arm.Get_TransData();
-//		for(int i=0; i<31; i++)
-//			printf("%c", output[i]);
+		for(int i=0; i<31; i++)
+			printf("%c", output[i]);
 		Bluetooth.Write(output, 31);
+		usleep(100000);
 	}
 }
 
@@ -97,7 +98,10 @@ void* receivingDataFromSerialPort(void*)
 	while(1)
 	{
 		if(!serialDataAvail(fd))
+		{
+			usleep(10000);
 			continue;
+		}
 		
 		char* recvMes = readSerial(fd);
 		recvMesHandle(recvMes);
@@ -117,13 +121,6 @@ void recvMesHandle(char* recvMes)
 		valStr = strtok(NULL, ",");
 	}
 	free(recvMes);	
-/*
-	for(top = 0; top < 5; top++)
-	{
-		printf("%d,", resistanceVals[top]);
-	}
-	printf("\n");
-*/
 }
 
 void signalHandler(int input)
