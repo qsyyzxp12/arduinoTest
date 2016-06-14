@@ -9,6 +9,7 @@
 #include"resistanceReader.h"
 #include"Linux_UART.h"
 #include"Robot_Arm.h"
+#include"Filter.h"
 
 #define MAX_MES_SIZE 	32
 #define INPUT_PORT		"/dev/ttyACM0"
@@ -18,6 +19,7 @@
 
 int fd = 0;
 static int resistanceVals[5] = {0};
+Middle_Filter filter[5];
 UART Bluetooth;
 int data_count = 0;
 
@@ -27,7 +29,7 @@ int main()
 	signal(SIGINT, signalHandler);
 	signal(SIGTERM, signalHandler);
 
-if(!Bluetooth.Setup_UART(OUTPUT_PORT, OUTPUT_BAUD_RATE, ~PARENB, CS8, ~CSTOPB))	
+	if(!Bluetooth.Setup_UART(OUTPUT_PORT, OUTPUT_BAUD_RATE, ~PARENB, CS8, ~CSTOPB))	
 	{
 		printf("Bluetooth setup Error\n");
 		return 1;
@@ -77,6 +79,9 @@ void dynamicCalculate()
 
 void* receivingDataFromSerialPort(void*)
 {
+	for(int i=0; i<5; i++)
+		filter[i].Set_ArraySize(5);
+
 	//init serial port file descriptor
 	fd = serialOpen(INPUT_PORT, INPUT_BAUD_RATE);
 	if(fd == -1)
@@ -117,7 +122,9 @@ void recvMesHandle(char* recvMes)
 	char* valStr = strtok(recvMes, ",");
 	while(valStr)
 	{
-		resistanceVals[top++] = atoi(valStr);
+//		resistanceVals[top++] = atoi(valStr);
+		resistanceVals[top] = filter[top].Output_y(atoi(valStr));
+		top++;
 		valStr = strtok(NULL, ",");
 	}
 	free(recvMes);	

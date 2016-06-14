@@ -1,5 +1,8 @@
-resistanceReader: resistanceReader.cpp Linux_UART.o Robot_Arm.o
-	g++ resistanceReader.cpp Linux_UART.o Robot_Arm.o -lpthread -lwiringPi -o resistanceReader
+resistanceReader: resistanceReader.cpp Linux_UART.o Robot_Arm.o Filter.o
+	g++ resistanceReader.cpp Filter.o Linux_UART.o Robot_Arm.o -lpthread -lwiringPi -o resistanceReader
+
+Filter.o: Filter.cpp
+	g++ Filter.cpp -c
 
 Linux_UART.o: Linux_UART.cpp
 	g++ Linux_UART.cpp -c
