@@ -19,6 +19,7 @@
 int fd;
 int resistanceVals[5];
 UART Bluetooth;
+Robot_Arm My_Arm(5);
 
 int main()
 {
