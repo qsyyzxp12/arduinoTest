@@ -11,7 +11,7 @@ int main()
 
 	My_Arm.Set_Ini_Theta(theta);
 	
-	My_Arm.Refreah_TFMatrix(theta);
+	My_Arm.Refresh_TFMatrix(theta);
 
 	std::cout << "T = \n" << My_Arm.T_BaseEnd << std::endl;
 

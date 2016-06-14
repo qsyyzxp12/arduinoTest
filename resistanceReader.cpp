@@ -8,6 +8,7 @@
 #include<pthread.h>
 #include"resistanceReader.h"
 #include"Linux_UART.h"
+#include"Robot_Arm.h"
 
 #define MAX_MES_SIZE 	32
 #define INPUT_PORT		"/dev/ttyACM0"
@@ -42,12 +43,12 @@ int main()
 
 void dynamicCalculate()
 {	
-/*	if(!Bluetooth.Setup_UART(OUTPUT_PORT, OUTPUT_BAUD_RATE, ~PARENB, CS8, ~CSTOPB))	
+	if(!Bluetooth.Setup_UART(OUTPUT_PORT, OUTPUT_BAUD_RATE, ~PARENB, CS8, ~CSTOPB))	
 	{
 		printf("Bluetooth setup Error\n");
 		return;
 	}
-*/	int resistanceValsNow[5] = {0};
+	int resistanceValsNow[5] = {0};
 	memcpy(resistanceValsNow, resistanceVals, sizeof(int)*5);
 	for(int i=0; i<5; i++)
 		printf("%d\t", resistanceValsNow[i]);
