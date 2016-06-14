@@ -41,13 +41,13 @@ int main()
 }
 
 void dynamicCalculate()
-{
-	if(!Bluetooth.Setup_UART(OUTPUT_PORT, OUTPUT_BAUD_RATE, ~PARENB, CS8, ~CSTOPB))	
+{	
+/*	if(!Bluetooth.Setup_UART(OUTPUT_PORT, OUTPUT_BAUD_RATE, ~PARENB, CS8, ~CSTOPB))	
 	{
 		printf("Bluetooth setup Error\n");
 		return;
 	}
-	int resistanceValsNow[5] = {0};
+*/	int resistanceValsNow[5] = {0};
 	memcpy(resistanceValsNow, resistanceVals, sizeof(int)*5);
 	for(int i=0; i<5; i++)
 		printf("%d\t", resistanceValsNow[i]);
