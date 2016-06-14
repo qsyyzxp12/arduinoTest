@@ -16,3 +16,6 @@ resistanceReaderController: resistanceReaderController.c
 install: resistanceReaderController
 	sudo rm /bin/resistanceReaderController
 	sudo cp resistanceReaderController /bin/
+
+clean:
+	rm -rf *.o

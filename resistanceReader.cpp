@@ -70,9 +70,9 @@ void dynamicCalculate()
 
 		My_Arm.Refresh_TFMatrix(My_Arm.RawTheta2Deg(resistanceVals));
 		char* output = My_Arm.Get_TransData();
-/*		for(int i=0; i<31; i++)
+		for(int i=0; i<31; i++)
 			printf("%c", output[i]);
-*/		Bluetooth.Write(output, 31);
+		Bluetooth.Write(output, 31);
 		usleep(100000);
 	}
 }
@@ -80,7 +80,7 @@ void dynamicCalculate()
 void* receivingDataFromSerialPort(void*)
 {
 	for(int i=0; i<5; i++)
-		filter[i].Set_ArraySize(5);
+		filter[i].Set_ArraySize(15);
 
 	//init serial port file descriptor
 	fd = serialOpen(INPUT_PORT, INPUT_BAUD_RATE);
@@ -107,7 +107,6 @@ void* receivingDataFromSerialPort(void*)
 			usleep(10000);
 			continue;
 		}
-		
 		char* recvMes = readSerial(fd);
 		recvMesHandle(recvMes);
 		data_count++;
@@ -118,15 +117,23 @@ void* receivingDataFromSerialPort(void*)
 
 void recvMesHandle(char* recvMes)
 {
-	int top = 0;
+/*	int top = 0;
+	printf("recvMes = %s", recvMes);
 	char* valStr = strtok(recvMes, ",");
+	printf("recvMes2 = %s", recvMes);
 	while(valStr)
 	{
-//		resistanceVals[top++] = atoi(valStr);
+		printf("top = %d", top);
+	//	resistanceVals[top++] = atoi(valStr);
 		resistanceVals[top] = filter[top].Output_y(atoi(valStr));
 		top++;
 		valStr = strtok(NULL, ",");
 	}
+*/
+	sscanf(recvMes, "%d,%d,%d,%d,%d,\r\n", &resistanceVals[0], &resistanceVals[1], &resistanceVals[2], &resistanceVals[3], &resistanceVals[4]);
+	for(int i=0; i<5; i++)
+		resistanceVals[i] = filter[i].Output_y(resistanceVals[i]);
+
 	free(recvMes);	
 }
 
