@@ -7,7 +7,7 @@
 #include <math.h>
 #include <string.h>
 #include <vector>
-#include <Eigen\Dense>
+#include "/usr/include/Eigen_3.2.7/Eigen/Dense"
 
 
 #define pi 3.14159265359
