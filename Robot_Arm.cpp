@@ -117,10 +117,10 @@ void Robot_Arm::Refresh_TFMatrix(double *New_theta)
 double* Robot_Arm::RawTheta2Deg(int *Raw_Theta)
 {
 	Theta[0] = -90.0 + (90.0 / 350.0) * double(Raw_Theta[0]);
-	Theta[1] = -double(Raw_Theta[1] - 550) * 90.0 / 330.0;
-	Theta[2] = -90.0 / 400.0 * double(Raw_Theta[2]-530) + 180.0;
-	Theta[3] = -90.0 / 385.0 * double(Raw_Theta[3]-495) - 90.0;
-	Theta[4] = -90.0 / 385.0 * double(Raw_Theta[4]-495);
+	Theta[1] = -double(Raw_Theta[1] - 550) * 90.0 / 378.0;
+	Theta[2] = 90.0 / 379.0 * double(Raw_Theta[2]-530) + 180.0;
+	Theta[3] = -90.0 / 100.0 * double(Raw_Theta[3]-100) - 90.0;
+	Theta[4] = -90.0 / 415.0 * double(Raw_Theta[4]-495);
 
 	return Theta;
 }
